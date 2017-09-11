@@ -4,6 +4,7 @@ var cvs = document.getElementById('cvs');
 var ctx = cvs.getContext('2d');
 cvs.width = WRAP_SIZE;
 cvs.height = WRAP_SIZE;
+var ani;
 
 var bgcvs = document.getElementById('back');
 var bgctx = bgcvs.getContext('2d');
@@ -29,10 +30,10 @@ function drawBack () {
     bgctx.closePath();
     bgctx.fill();
 }
-function drawBall (col, row, n) {
+function drawBall (col, row, n, r) {
     ctx.fillStyle = '#' + kindList[n];
     ctx.beginPath();
-    ctx.arc(getTopLeft(col) + SIZE/2, getTopLeft(row) + SIZE/2, SIZE/3, 0, Math.PI*2);
+    ctx.arc(getTopLeft(col) + SIZE/2, getTopLeft(row) + SIZE/2, r, 0, Math.PI*2);
     ctx.closePath();
     ctx.fill();
 }
@@ -40,7 +41,8 @@ function drawBallByID (id) {
     var col = id % 10,
         row = ~~(id / 10),
         n = ballList[id].n;
-    drawBall(col, row, n);
+    ballList[id].r = Math.min(SIZE/3, ballList[id].r+2);
+    drawBall(col, row, n, ballList[id].r);
 }
 function getTopLeft (n) {
     return (SIZE + 1) * n + 1;
@@ -74,7 +76,8 @@ function getID (col, row) {
 }
 function setBlock (id, n) {
     ballList[id] = {
-        n: n
+        n: n,
+        r: 0
     }
     if (n != null) {
         emptyList.splice(emptyList.indexOf(id), 1);
@@ -101,6 +104,7 @@ function renderBall () {
             drawBallByID(i);
         }
     }
+    ani = requestAnimationFrame(renderBall);
 }
 
 function init () {
