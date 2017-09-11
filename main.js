@@ -108,25 +108,31 @@ var searchList = []
     nextSearchList = [];
 var objectXY = {};
 var countStep = 0;
+function clearDate () {
+    countStep = 0;
+    objectXY = {};
+    searchList = [];
+    nextSearchList = [];
+    pathList = {};
+}
 function searchAround () {
     var goon = true;
     searchList.forEach(function (b) {
         if (b.x == objectXY.x && b.y == objectXY.y) {
             console.log('找到:'+countStep);
-            countStep = 0;
-            objectXY = {};
-            searchList = [];
-            nextSearchList = [];
-            pathList = {};
+            clearDate();
             goon = false;
         } else {
             goon && addAroundList(b);
         }
     });
-    if (goon) {
+    if (goon && nextSearchList.length > 0) {
         countStep++;
         searchList = nextSearchList;
+        nextSearchList = [];
         searchAround();
+    } else {
+        clearDate();
     }
 }
 function addAroundList (b) {
