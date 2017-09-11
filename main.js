@@ -14,6 +14,7 @@ var kindList = ['f00','0ff','0f0','f0f','00f','ff0','000'];
 var ballList = {};
 var emptyList = [];
 var nextList = [];
+var currentBall = null;
 
 function drawBack () {
     bgctx.fillStyle = '#bbb';
@@ -36,7 +37,7 @@ function drawBall (col, row, n) {
     ctx.fill();
 }
 function drawBallByID (id) {
-    var col = id % 9,
+    var col = id % 10,
         row = ~~(id / 10),
         n = ballList[id].n;
     drawBall(col, row, n);
@@ -65,6 +66,8 @@ function new3Ball () {
     for (var i = 0; i < 3; i++) {
         newBall();
     }
+    renderBall();
+    next3Ball();
 }
 function getID (col, row) {
     return row * 10 + col;
@@ -81,7 +84,14 @@ function userPlay () {
     cvs.addEventListener('touchstart', function (e) {
         var x = ~~(e.touches[0].clientX / (SIZE+1)),
             y = ~~(e.touches[0].clientY / (SIZE+1));
-        console.log(x,y)
+        var id = getID(x, y);
+        if (ballList[id].n != null) {
+            currentBall = id;
+        } else if (currentBall) {
+            // moveBall
+            new3Ball();
+            currentBall = null;
+        }
     });
 }
 function renderBall () {
@@ -98,6 +108,5 @@ function init () {
     userPlay();
     next3Ball();
     new3Ball();
-    renderBall();
 }
 init();
