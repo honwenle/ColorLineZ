@@ -108,19 +108,13 @@ var searchList = []
     nextSearchList = [];
 var objectXY = {};
 var countStep = 0;
-function clearDate () {
-    countStep = 0;
-    objectXY = {};
-    searchList = [];
-    nextSearchList = [];
-    pathList = {};
-}
 function searchAround () {
     var goon = true;
     searchList.forEach(function (b) {
         if (b.x == objectXY.x && b.y == objectXY.y) {
             console.log('找到:'+countStep);
-            clearDate();
+            searchList = [];
+            nextSearchList = [];
             goon = false;
         } else {
             goon && addAroundList(b);
@@ -132,7 +126,12 @@ function searchAround () {
         nextSearchList = [];
         searchAround();
     } else {
-        clearDate();
+        countStep = 0;
+        currentBall = null;
+        objectXY = {};
+        searchList = [];
+        nextSearchList = [];
+        pathList = {};
     }
 }
 function addAroundList (b) {
