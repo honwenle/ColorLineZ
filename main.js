@@ -15,7 +15,8 @@ var kindList = ['f00','0ff','0f0','f0f','00f','ff0','000'];
 var ballList = {};
 var emptyList = [];
 var nextList = [];
-var currentBall = null;
+var currentBall = null,
+    currentBallX = true;
 
 function drawBack () {
     bgctx.fillStyle = '#bbb';
@@ -41,7 +42,21 @@ function drawBallByID (id) {
     var col = id % 10,
         row = ~~(id / 10),
         n = ballList[id].n;
-    ballList[id].r = Math.min(SIZE/3, ballList[id].r+2);
+    if (id == currentBall) {
+        if (currentBallX) {
+            ballList[id].r -= .5;
+            if (ballList[id].r < SIZE/6) {
+                currentBallX = false;
+            }
+        } else {
+            ballList[id].r += .5;
+            if (ballList[id].r > SIZE*2/5) {
+                currentBallX = true;
+            }
+        }
+    } else {
+        ballList[id].r = Math.min(SIZE/3, ballList[id].r+2);
+    }
     drawBall(col, row, n, ballList[id].r);
 }
 function getTopLeft (n) {
@@ -68,7 +83,6 @@ function new3Ball () {
     for (var i = 0; i < 3; i++) {
         newBall();
     }
-    renderBall();
     next3Ball();
 }
 function getID (col, row) {
@@ -112,5 +126,6 @@ function init () {
     userPlay();
     next3Ball();
     new3Ball();
+    renderBall();
 }
 init();
