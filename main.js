@@ -88,6 +88,12 @@ function new3Ball () {
 function getID (col, row) {
     return row * 10 + col;
 }
+function getXY (id) {
+    return {
+        x: id % 10,
+        y: ~~(id / 10)
+    }
+}
 function setBlock (id, n) {
     ballList[id] = {
         n: n,
@@ -97,6 +103,49 @@ function setBlock (id, n) {
         emptyList.splice(emptyList.indexOf(id), 1);
     }
 }
+var pathList = {};
+var searchList = []
+    nextSearchList = [];
+var objectXY = {};
+var countStep = 0;
+function searchAround () {
+    var goon = true;
+    searchList.forEach(function (b) {
+        if (b.x == objectXY.x && b.y == objectXY.y) {
+            console.log('找到:'+countStep);
+            countStep = 0;
+            objectXY = {};
+            searchList = [];
+            nextSearchList = [];
+            pathList = {};
+            goon = false;
+        } else {
+            goon && addAroundList(b);
+        }
+    });
+    if (goon) {
+        countStep++;
+        searchList = nextSearchList;
+        searchAround();
+    }
+}
+function addAroundList (b) {
+    [[0,-1], [1,0], [0,1], [-1,0]].forEach(function (xo) {
+        var next = {x: b.x + xo[0], y: b.y + xo[1]};
+        var nextID = getID(next.x, next.y)
+        if (next.x < 0 || next.x > 8 || next.y < 0 || next.y > 8) {
+            return false;
+        }
+        if (emptyList.indexOf(nextID) < 0) {
+            return false;
+        }
+        if (!pathList[nextID]) {
+            pathList[nextID] = countStep;
+            nextSearchList.push({x: b.x + xo[0], y: b.y + xo[1]});
+        }
+    });
+}
+function getReturnPath () {}
 function userPlay () {
     cvs.addEventListener('touchstart', function (e) {
         var x = ~~(e.touches[0].clientX / (SIZE+1)),
@@ -104,8 +153,10 @@ function userPlay () {
         var id = getID(x, y);
         if (ballList[id].n != null) {
             currentBall = id;
+            searchList.push(getXY(id))
         } else if (currentBall) {
-            // moveBall
+            objectXY = {x: x, y: y};
+            searchAround();
             new3Ball();
             currentBall = null;
         }
