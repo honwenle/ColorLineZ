@@ -252,6 +252,20 @@ function getReturnPath () {
         getReturnPath();
     }
 }
+function selectBall (id, x, y) {
+    if (currentBall) {
+        pathList = {};
+        ballList[id].x = undefined;
+        ballList[id].y = undefined;
+    }
+    currentBall = id;
+    searchList = [getXY(id)];
+    pathList[id] = 0;
+    ballList[id].x = getTopLeft(x) + SIZE/2;
+    ballList[id].y = getTopLeft(y) + SIZE/2;
+    ballList[id].ox = ballList[id].x;
+    ballList[id].oy = ballList[id].y;
+}
 function userPlay () {
     cvs.addEventListener('touchstart', function (e) {
         if (!canplay) {
@@ -261,13 +275,7 @@ function userPlay () {
             y = ~~(e.touches[0].clientY / (SIZE+1));
         var id = getID(x, y);
         if (ballList[id].n != null) {
-            currentBall = id;
-            searchList.push(getXY(id));
-            pathList[id] = 0;
-            ballList[id].x = getTopLeft(x) + SIZE/2;
-            ballList[id].y = getTopLeft(y) + SIZE/2;
-            ballList[id].ox = ballList[id].x;
-            ballList[id].oy = ballList[id].y;
+            selectBall(id, x, y);
         } else if (currentBall != null) {
             canplay = false;
             objectXY = getXY(id);
