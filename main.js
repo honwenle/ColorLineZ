@@ -10,7 +10,7 @@ var ani;
 var bgcvs = document.getElementById('back');
 var bgctx = bgcvs.getContext('2d');
 bgcvs.width = WRAP_SIZE;
-bgcvs.height = WRAP_SIZE;
+bgcvs.height = WRAP_SIZE + SIZE;
 
 var kindList = ['f00','0ff','0f0','f0f','00f','ff0','000']; // 颜色列表
 var ballList = {}; // 色球列表
@@ -138,8 +138,18 @@ function randomColor () {
 function next3Ball () {
     nextList = [];
     for (var i = 0; i < 3; i++) {
-        nextList.push(randomColor());
+        var cl = randomColor();
+        nextList.push(cl);
+        bgctx.beginPath();
+        bgctx.fillStyle = '#' + kindList[cl];
+        bgctx.arc(SIZE*3 + i * SIZE, WRAP_SIZE + SIZE/2, SIZE/3, 0, Math.PI*2);
+        bgctx.closePath();
+        bgctx.fill();
     }
+    bgctx.font = SIZE/2 + 'px 微软雅黑';
+    bgctx.fillStyle = '#fff';
+    bgctx.textBaseline = 'middle';
+    bgctx.fillText('下一组：', SIZE/2, WRAP_SIZE + SIZE/2);
 }
 function newBall () {
     if (emptyList.length > 0) {
