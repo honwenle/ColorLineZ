@@ -116,6 +116,7 @@ function searchAround () {
             searchList = [];
             nextSearchList = [];
             goon = false;
+            getReturnPath();
         } else {
             goon && addAroundList(b);
         }
@@ -145,12 +146,34 @@ function addAroundList (b) {
             return false;
         }
         if (!pathList[nextID]) {
-            pathList[nextID] = countStep;
+            pathList[nextID] = countStep+1;
             nextSearchList.push({x: b.x + xo[0], y: b.y + xo[1]});
         }
     });
 }
-function getReturnPath () {}
+var pathArr = [];
+function getReturnPath () {
+    var goon = true;
+    [[0,-1], [1,0], [0,1], [-1,0]].forEach(function (xo) {
+        var next = {x: objectXY.x + xo[0], y: objectXY.y + xo[1]};
+        var nextID = getID(next.x, next.y)
+        if (next.x < 0 || next.x > 8 || next.y < 0 || next.y > 8) {
+            return false;
+        }
+        if (goon && pathList[nextID] == countStep-1) {
+            pathArr.push(objectXY);
+            objectXY = next;
+            goon = false;
+        }
+    });
+    if (countStep == 1) {
+        console.log('回归路线：'+JSON.stringify(pathArr))
+        pathArr = [];
+    } else {
+        countStep--;
+        getReturnPath();
+    }
+}
 function userPlay () {
     cvs.addEventListener('touchstart', function (e) {
         var x = ~~(e.touches[0].clientX / (SIZE+1)),
@@ -158,9 +181,10 @@ function userPlay () {
         var id = getID(x, y);
         if (ballList[id].n != null) {
             currentBall = id;
-            searchList.push(getXY(id))
+            searchList.push(getXY(id));
+            pathList[id] = 0;
         } else if (currentBall) {
-            objectXY = {x: x, y: y};
+            objectXY = getXY(id);
             searchAround();
             new3Ball();
             currentBall = null;
