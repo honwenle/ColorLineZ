@@ -90,9 +90,43 @@ function drawBallByID (id) {
     ctx.closePath();
     ctx.fill();
 }
+var clearList = [];
 function checkClear (id) {
-    // 和五子棋一样的判断
-    new3Ball();
+    var obj = ballList[id],
+        xy = getXY(id);
+    var dirs = [[0,-1], [1,1], [1,0], [1,-1]];
+    for (var d = 0; d < 4; d++) {
+        var arr = [];
+        for (var r = 1, i = 1; r >= -1; r -= 2, i = 1) {
+            while (true) {
+                var next = {x: xy.x + dirs[d][0]*r*i, y: xy.y + dirs[d][1]*r*i};
+                var xid = getID(next.x, next.y);
+                if (next.x < 0 || next.x > 8 || next.y < 0 || next.y > 8) {
+                    break;
+                }
+                if (obj.n == ballList[xid].n) {
+                    arr.push(xid);
+                    i++;
+                } else {
+                    break;
+                }
+            }
+        }
+        if (arr.length >= 4) {
+            clearList = clearList.concat(arr);
+        }
+    }
+    // 执行消除
+    console.log(clearList)
+    if (clearList.length > 0) {
+        clearList.forEach(function (i) {
+            setBlock(id, null);
+            setBlock(i, null);
+        })
+        clearList = [];
+    } else {
+        new3Ball();
+    }
 }
 function getTopLeft (n) {
     return (SIZE + 1) * n + 1;
@@ -136,6 +170,8 @@ function setBlock (id, n) {
     }
     if (n != null) {
         emptyList.splice(emptyList.indexOf(id), 1);
+    } else {
+        emptyList.push(id);
     }
 }
 var pathList = {};
@@ -175,7 +211,7 @@ function searchAround () {
 function addAroundList (b) {
     [[0,-1], [1,0], [0,1], [-1,0]].forEach(function (xo) {
         var next = {x: b.x + xo[0], y: b.y + xo[1]};
-        var nextID = getID(next.x, next.y)
+        var nextID = getID(next.x, next.y);
         if (next.x < 0 || next.x > 8 || next.y < 0 || next.y > 8) {
             return false;
         }
