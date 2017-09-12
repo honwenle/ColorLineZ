@@ -18,6 +18,7 @@ var emptyList = []; // 空格列表
 var nextList = []; // 下一批颜色列表
 var currentBall = null, // 选中球的id
     currentBallX = true; // 选中球的动画状态是否正在缩小
+var canplay = false;
 // 画背景
 function drawBack () {
     bgctx.fillStyle = '#bbb';
@@ -152,6 +153,7 @@ function new3Ball () {
     for (var i = 0; i < 3; i++) {
         newBall();
     }
+    canplay = true;
     next3Ball();
 }
 function getID (col, row) {
@@ -186,6 +188,7 @@ function clearDate () {
     searchList = [];
     nextSearchList = [];
     pathList = {};
+    canplay = true;
 }
 function searchAround () {
     for (var i = 0, len = searchList.length; i < len; i++) {
@@ -251,6 +254,9 @@ function getReturnPath () {
 }
 function userPlay () {
     cvs.addEventListener('touchstart', function (e) {
+        if (!canplay) {
+            return false;
+        }
         var x = ~~(e.touches[0].clientX / (SIZE+1)),
             y = ~~(e.touches[0].clientY / (SIZE+1));
         var id = getID(x, y);
@@ -263,9 +269,9 @@ function userPlay () {
             ballList[id].ox = ballList[id].x;
             ballList[id].oy = ballList[id].y;
         } else if (currentBall != null) {
+            canplay = false;
             objectXY = getXY(id);
             searchAround();
-            // currentBall = null;
         }
     });
 }
