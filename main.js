@@ -1,3 +1,4 @@
+// 尺寸、画布等常量
 var SIZE = ~~(screen.availWidth / 9) - 1;
 var WRAP_SIZE = (SIZE + 1) * 9 + 1;
 var cvs = document.getElementById('cvs');
@@ -5,19 +6,19 @@ var ctx = cvs.getContext('2d');
 cvs.width = WRAP_SIZE;
 cvs.height = WRAP_SIZE;
 var ani;
-
+// 背景画布
 var bgcvs = document.getElementById('back');
 var bgctx = bgcvs.getContext('2d');
 bgcvs.width = WRAP_SIZE;
 bgcvs.height = WRAP_SIZE;
 
-var kindList = ['f00','0ff','0f0','f0f','00f','ff0','000'];
-var ballList = {};
-var emptyList = [];
-var nextList = [];
-var currentBall = null,
-    currentBallX = true;
-
+var kindList = ['f00','0ff','0f0','f0f','00f','ff0','000']; // 颜色列表
+var ballList = {}; // 色球列表
+var emptyList = []; // 空格列表
+var nextList = []; // 下一批颜色列表
+var currentBall = null, // 选中球的id
+    currentBallX = true; // 选中球的动画状态是否正在缩小
+// 画背景
 function drawBack () {
     bgctx.fillStyle = '#bbb';
     bgctx.beginPath();
@@ -31,6 +32,7 @@ function drawBack () {
     bgctx.closePath();
     bgctx.fill();
 }
+// 画球
 function drawBall (col, row, n, r) {
     ctx.fillStyle = '#' + kindList[n];
     ctx.beginPath();
@@ -40,24 +42,61 @@ function drawBall (col, row, n, r) {
 }
 function drawBallByID (id) {
     var col = id % 10,
-        row = ~~(id / 10),
-        n = ballList[id].n;
+        row = ~~(id / 10);
+    var obj = ballList[id];
     if (id == currentBall) {
-        if (currentBallX) {
-            ballList[id].r -= .5;
-            if (ballList[id].r < SIZE/6) {
-                currentBallX = false;
+        if (pathOK) { // 移动
+            obj.r = SIZE/3;
+            if (obj.x == obj.ox && obj.y == obj.oy) {
+                if (pathArr.length > 0) {
+                    var next = pathArr.pop();
+                    obj.ox = getTopLeft(next.x) + SIZE/2;
+                    obj.oy = getTopLeft(next.y) + SIZE/2;
+                    obj.dtx = obj.ox - obj.x;
+                    obj.dty = obj.oy - obj.y;
+                } else {
+                    pathOK = false;
+                    setBlock(obj.id, obj.n);
+                    ballList[obj.id].r = obj.r;
+                    emptyList.push(parseInt(id));
+                    ballList[id] = {n: null};
+                    clearDate();
+                    new3Ball();
+                }
+            } else {
+                obj.x = obj.dtx > 0 ?
+                    Math.min(obj.ox, obj.x + 4) :
+                    Math.max(obj.ox, obj.x - 4);
+                obj.y = obj.dty > 0 ?
+                    Math.min(obj.oy, obj.y + 4) :
+                    Math.max(obj.oy, obj.y - 4);
             }
-        } else {
-            ballList[id].r += .5;
-            if (ballList[id].r > SIZE*2/5) {
-                currentBallX = true;
+        } else { // 缩放
+            if (currentBallX) {
+                obj.r -= .5;
+                if (obj.r < SIZE/6) {
+                    currentBallX = false;
+                }
+            } else {
+                obj.r += .5;
+                if (obj.r > SIZE*2/5) {
+                    currentBallX = true;
+                }
             }
         }
     } else {
-        ballList[id].r = Math.min(SIZE/3, ballList[id].r+2);
+        obj.r = Math.min(SIZE/3, obj.r+2);
     }
-    drawBall(col, row, n, ballList[id].r);
+    // drawBall(col, row, obj.n, obj.r);
+    ctx.fillStyle = '#' + kindList[obj.n];
+    ctx.beginPath();
+    ctx.arc(
+        obj.x || getTopLeft(col) + SIZE/2,
+        obj.y || getTopLeft(row) + SIZE/2,
+        obj.r, 0, Math.PI*2
+    );
+    ctx.closePath();
+    ctx.fill();
 }
 function getTopLeft (n) {
     return (SIZE + 1) * n + 1;
@@ -108,31 +147,33 @@ var searchList = []
     nextSearchList = [];
 var objectXY = {};
 var countStep = 0;
+function clearDate () {
+    countStep = 0;
+    currentBall = null;
+    objectXY = {};
+    searchList = [];
+    nextSearchList = [];
+    pathList = {};
+}
 function searchAround () {
-    var goon = true;
-    searchList.forEach(function (b) {
+    for (var i = 0, len = searchList.length; i < len; i++) {
+        var b = searchList[i];
         if (b.x == objectXY.x && b.y == objectXY.y) {
+            ballList[currentBall].id = getID(objectXY.x, objectXY.y);
             console.log('找到:'+countStep);
-            searchList = [];
-            nextSearchList = [];
-            goon = false;
             getReturnPath();
-        } else {
-            goon && addAroundList(b);
+            return false;
         }
-    });
-    if (goon && nextSearchList.length > 0) {
+        addAroundList(b);
+    }
+    if (nextSearchList.length > 0) {
         countStep++;
         searchList = nextSearchList;
         nextSearchList = [];
         searchAround();
     } else {
-        countStep = 0;
-        currentBall = null;
-        objectXY = {};
-        searchList = [];
-        nextSearchList = [];
-        pathList = {};
+        console.log('找不到');
+        clearDate();
     }
 }
 function addAroundList (b) {
@@ -151,7 +192,8 @@ function addAroundList (b) {
         }
     });
 }
-var pathArr = [];
+var pathArr = [],
+    pathOK = false;
 function getReturnPath () {
     var goon = true;
     [[0,-1], [1,0], [0,1], [-1,0]].forEach(function (xo) {
@@ -168,7 +210,8 @@ function getReturnPath () {
     });
     if (countStep == 1) {
         console.log('回归路线：'+JSON.stringify(pathArr))
-        pathArr = [];
+        pathOK = true;
+        // pathArr = [];
     } else {
         countStep--;
         getReturnPath();
@@ -183,11 +226,14 @@ function userPlay () {
             currentBall = id;
             searchList.push(getXY(id));
             pathList[id] = 0;
-        } else if (currentBall) {
+            ballList[id].x = getTopLeft(x) + SIZE/2;
+            ballList[id].y = getTopLeft(y) + SIZE/2;
+            ballList[id].ox = ballList[id].x;
+            ballList[id].oy = ballList[id].y;
+        } else if (currentBall != null) {
             objectXY = getXY(id);
             searchAround();
-            new3Ball();
-            currentBall = null;
+            // currentBall = null;
         }
     });
 }
