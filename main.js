@@ -33,13 +33,6 @@ function drawBack () {
     bgctx.fill();
 }
 // 画球
-function drawBall (col, row, n, r) {
-    ctx.fillStyle = '#' + kindList[n];
-    ctx.beginPath();
-    ctx.arc(getTopLeft(col) + SIZE/2, getTopLeft(row) + SIZE/2, r, 0, Math.PI*2);
-    ctx.closePath();
-    ctx.fill();
-}
 function drawBallByID (id) {
     var col = id % 10,
         row = ~~(id / 10);
@@ -61,7 +54,7 @@ function drawBallByID (id) {
                     emptyList.push(parseInt(id));
                     ballList[id] = {n: null};
                     clearDate();
-                    new3Ball();
+                    checkClear(obj.id);
                 }
             } else {
                 obj.x = obj.dtx > 0 ?
@@ -87,7 +80,6 @@ function drawBallByID (id) {
     } else {
         obj.r = Math.min(SIZE/3, obj.r+2);
     }
-    // drawBall(col, row, obj.n, obj.r);
     ctx.fillStyle = '#' + kindList[obj.n];
     ctx.beginPath();
     ctx.arc(
@@ -97,6 +89,10 @@ function drawBallByID (id) {
     );
     ctx.closePath();
     ctx.fill();
+}
+function checkClear (id) {
+    // 和五子棋一样的判断
+    new3Ball();
 }
 function getTopLeft (n) {
     return (SIZE + 1) * n + 1;
