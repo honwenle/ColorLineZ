@@ -118,7 +118,7 @@ function checkClear (id) {
         }
     }
     // 执行消除
-    console.log(clearList)
+    console.log('消除：'+JSON.stringify(clearList))
     if (clearList.length > 0) {
         clearList.forEach(function (i) {
             setBlock(id, null);
