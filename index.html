@@ -16,11 +16,20 @@
     #cvs{
         position: absolute;
     }
+    .rule{
+        position: absolute;
+        bottom: 0;
+    }
     </style>
 </head>
 <body>
     <canvas id="back"></canvas>
     <canvas id="cvs"></canvas>
+    <ul class="rule">
+        <li>点击小球处于选中状态，再次点击移动小球</li>
+        <li>水平、竖直、斜45度任意方向存在5个及以上小球，即可消除</li>
+        <li>5格消除计1分，6格消除计2分，7格消除计4，以此类推</li>
+    </ul>
     <script src="main.js"></script>
 </body>
 </html>

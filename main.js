@@ -18,6 +18,7 @@ var nextList = []; // 下一批颜色列表
 var currentBall = null, // 选中球的id
     currentBallX = true; // 选中球的动画状态是否正在缩小
 var canplay = false;
+var score = 0;
 // 画背景
 function drawBack () {
     bgctx.fillStyle = '#bbb';
@@ -118,6 +119,8 @@ function checkClear (id) {
     // 执行消除
     // console.log('消除：'+JSON.stringify(clearList))
     if (clearList.length > 0) {
+        score += Math.pow(2, clearList.length - 4);
+        drawScore();
         clearList.forEach(function (i) {
             setBlock(id, null);
             setBlock(i, null);
@@ -126,6 +129,10 @@ function checkClear (id) {
     } else {
         new3Ball();
     }
+}
+function drawScore () {
+    bgctx.clearRect(SIZE*5, WRAP_SIZE, SIZE*4, SIZE);
+    bgctx.fillText('得分：' + score, SIZE*5, WRAP_SIZE + SIZE/2);
 }
 function getTopLeft (n) {
     return (SIZE + 1) * n + 1;
@@ -140,14 +147,14 @@ function next3Ball () {
         nextList.push(cl);
         bgctx.beginPath();
         bgctx.fillStyle = '#' + kindList[cl];
-        bgctx.arc(SIZE*3 + i * SIZE, WRAP_SIZE + SIZE/2, SIZE/3, 0, Math.PI*2);
+        bgctx.arc(SIZE*5/2 + i * SIZE, WRAP_SIZE + SIZE/2, SIZE/3, 0, Math.PI*2);
         bgctx.closePath();
         bgctx.fill();
     }
     bgctx.font = SIZE/2 + 'px 微软雅黑';
     bgctx.fillStyle = '#fff';
     bgctx.textBaseline = 'middle';
-    bgctx.fillText('下一组：', SIZE/2, WRAP_SIZE + SIZE/2);
+    bgctx.fillText('下一组：', 0, WRAP_SIZE + SIZE/2);
 }
 function newBall () {
     var emptyList = [];
@@ -314,6 +321,7 @@ function init () {
     userPlay();
     next3Ball();
     new3Ball();
+    drawScore();
     renderBall();
 }
 init();
