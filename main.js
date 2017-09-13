@@ -14,7 +14,6 @@ bgcvs.height = WRAP_SIZE + SIZE;
 
 var kindList = ['f00','0ff','0f0','f0f','00f','ff0','000']; // 颜色列表
 var ballList = {}; // 色球列表
-var emptyList = []; // 空格列表
 var nextList = []; // 下一批颜色列表
 var currentBall = null, // 选中球的id
     currentBallX = true; // 选中球的动画状态是否正在缩小
@@ -27,7 +26,6 @@ function drawBack () {
         for (var j = 0; j < 9; j++) {
             bgctx.fillRect(getTopLeft(j), getTopLeft(i), SIZE, SIZE);
             ballList[getID(j, i)] = {n: null};
-            emptyList.push(getID(j, i));
         }
     }
     bgctx.closePath();
@@ -52,7 +50,6 @@ function drawBallByID (id) {
                     pathOK = false;
                     setBlock(obj.id, obj.n);
                     ballList[obj.id].r = obj.r;
-                    emptyList.push(parseInt(id));
                     ballList[id] = {n: null};
                     clearDate();
                     checkClear(obj.id);
@@ -92,6 +89,7 @@ function drawBallByID (id) {
     ctx.fill();
 }
 var clearList = [];
+// 检查消除
 function checkClear (id) {
     var obj = ballList[id],
         xy = getXY(id);
@@ -118,7 +116,7 @@ function checkClear (id) {
         }
     }
     // 执行消除
-    console.log('消除：'+JSON.stringify(clearList))
+    // console.log('消除：'+JSON.stringify(clearList))
     if (clearList.length > 0) {
         clearList.forEach(function (i) {
             setBlock(id, null);
@@ -152,6 +150,12 @@ function next3Ball () {
     bgctx.fillText('下一组：', SIZE/2, WRAP_SIZE + SIZE/2);
 }
 function newBall () {
+    var emptyList = [];
+    for (var id in ballList) {
+        if (ballList[id].n == null) {
+            emptyList.push(id);
+        }
+    }
     if (emptyList.length > 0) {
         var id = emptyList[~~(Math.random() * emptyList.length)];
         setBlock(id, nextList.shift());
@@ -180,17 +184,13 @@ function setBlock (id, n) {
         n: n,
         r: 0
     }
-    if (n != null) {
-        emptyList.splice(emptyList.indexOf(id), 1);
-    } else {
-        emptyList.push(id);
-    }
 }
 var pathList = {};
 var searchList = []
     nextSearchList = [];
 var objectXY = {};
 var countStep = 0;
+// 重置数据
 function clearDate () {
     countStep = 0;
     currentBall = null;
@@ -200,6 +200,7 @@ function clearDate () {
     pathList = {};
     canplay = true;
 }
+// 以出发点为第一组搜索列表向外延伸搜索
 function searchAround () {
     for (var i = 0, len = searchList.length; i < len; i++) {
         var b = searchList[i];
@@ -211,6 +212,7 @@ function searchAround () {
         }
         addAroundList(b);
     }
+    // console.log('下一轮寻找'+JSON.stringify(nextSearchList))
     if (nextSearchList.length > 0) {
         countStep++;
         searchList = nextSearchList;
@@ -221,6 +223,7 @@ function searchAround () {
         clearDate();
     }
 }
+// 将周围4格为查询的空格添加到查询列表
 function addAroundList (b) {
     [[0,-1], [1,0], [0,1], [-1,0]].forEach(function (xo) {
         var next = {x: b.x + xo[0], y: b.y + xo[1]};
@@ -228,17 +231,18 @@ function addAroundList (b) {
         if (next.x < 0 || next.x > 8 || next.y < 0 || next.y > 8) {
             return false;
         }
-        if (emptyList.indexOf(nextID) < 0) {
+        if (ballList[nextID].n != null) {
             return false;
         }
         if (!pathList[nextID]) {
             pathList[nextID] = countStep+1;
-            nextSearchList.push({x: b.x + xo[0], y: b.y + xo[1]});
+            nextSearchList.push(next);
         }
     });
 }
 var pathArr = [],
     pathOK = false;
+// 寻找回归路径
 function getReturnPath () {
     var goon = true;
     [[0,-1], [1,0], [0,1], [-1,0]].forEach(function (xo) {
@@ -254,14 +258,14 @@ function getReturnPath () {
         }
     });
     if (countStep == 1) {
-        console.log('回归路线：'+JSON.stringify(pathArr))
+        // console.log('回归路线：'+JSON.stringify(pathArr))
         pathOK = true;
-        // pathArr = [];
     } else {
         countStep--;
         getReturnPath();
     }
 }
+// 选中出发点
 function selectBall (id, x, y) {
     if (currentBall) {
         pathList = {};
@@ -276,6 +280,7 @@ function selectBall (id, x, y) {
     ballList[id].ox = ballList[id].x;
     ballList[id].oy = ballList[id].y;
 }
+// 用户输入
 function userPlay () {
     cvs.addEventListener('touchstart', function (e) {
         if (!canplay) {
@@ -293,6 +298,7 @@ function userPlay () {
         }
     });
 }
+// 渲染画布
 function renderBall () {
     ctx.clearRect(0, 0, WRAP_SIZE, WRAP_SIZE);
     for (var i in ballList) {
@@ -302,7 +308,7 @@ function renderBall () {
     }
     ani = requestAnimationFrame(renderBall);
 }
-
+// 初始化
 function init () {
     drawBack();
     userPlay();
