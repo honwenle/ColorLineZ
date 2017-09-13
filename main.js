@@ -53,7 +53,7 @@ function drawBallByID (id) {
                     ballList[obj.id].r = obj.r;
                     ballList[id] = {n: null};
                     clearDate();
-                    checkClear(obj.id);
+                    checkClear(obj.id, true);
                 }
             } else {
                 obj.x = obj.dtx > 0 ?
@@ -91,7 +91,7 @@ function drawBallByID (id) {
 }
 var clearList = [];
 // 检查消除
-function checkClear (id) {
+function checkClear (id, needNew) {
     var obj = ballList[id],
         xy = getXY(id);
     var dirs = [[0,-1], [1,1], [1,0], [1,-1]];
@@ -126,7 +126,7 @@ function checkClear (id) {
             setBlock(i, null);
         })
         clearList = [];
-    } else {
+    } else if (needNew) {
         new3Ball();
     }
 }
@@ -166,6 +166,7 @@ function newBall () {
     if (emptyList.length > 0) {
         var id = emptyList[~~(Math.random() * emptyList.length)];
         setBlock(id, nextList.shift());
+        checkClear(id, false);
     } else {
         console.log('没地加了')
     }
