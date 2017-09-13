@@ -348,12 +348,14 @@ function saveGame () {
 function clearSave () {
     localStorage.removeItem('cl_ball');
     localStorage.removeItem('cl_next');
+    localStorage.removeItem('cl_score');
 }
 function updateHighScore () {
     var high = localStorage.getItem('cl_high');
     if (score > high) {
         localStorage.setItem('cl_high', score);
     }
+    clearSave();
 }
 // 初始化
 function init () {
