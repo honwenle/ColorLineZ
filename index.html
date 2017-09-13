@@ -26,7 +26,7 @@
     #cvs{
         position: absolute;
     }
-    .rule{
+    .bottom{
         position: absolute;
         bottom: 0;
     }
@@ -35,11 +35,17 @@
 <body>
     <canvas id="back"></canvas>
     <canvas id="cvs"></canvas>
-    <ul class="rule">
-        <li>点击小球处于选中状态，再次点击移动小球</li>
-        <li>水平、竖直、斜45度任意方向存在5个及以上小球，即可消除</li>
-        <li>5格消除计1分，6格消除计2分，7格消除计4，以此类推</li>
-    </ul>
+    <div class="bottom">
+        <div class="info">
+            <button onclick="clearSave();location.reload()">重玩</button>
+            历史最高分：<span id="high"></span>
+        </div>
+        <ul class="rule">
+            <li>点击小球处于选中状态，再次点击移动小球</li>
+            <li>水平、竖直、斜45度任意方向存在5个及以上小球，即可消除</li>
+            <li>5格消除计1分，6格消除计2分，7格消除计4，以此类推</li>
+        </ul>
+    </div>
     <script src="main.js"></script>
 </body>
 </html>

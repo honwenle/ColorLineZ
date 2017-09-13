@@ -122,24 +122,27 @@ function checkClear (id, needNew) {
     // console.log('消除：'+JSON.stringify(clearList))
     if (clearList.length > 0) {
         score += Math.pow(2, clearList.length - 4);
-        drawScore();
         clearList.forEach(function (i) {
             setBlock(id, null);
             setBlock(i, null);
         })
         clearList = [];
+        drawScore();
         noClearToOver = false;
     } else if (needNew) {
         new3Ball();
     } else if (noClearToOver) {
-        console.log('GameOver')
+        console.log('获得'+score+'分')
         gameover = true;
+        updateHighScore();
+        // location.reload();
         return false;
     }
 }
 function drawScore () {
     bgctx.clearRect(SIZE*5, WRAP_SIZE, SIZE*4, SIZE);
     bgctx.fillText('得分：' + score, SIZE*5, WRAP_SIZE + SIZE/2);
+    saveGame();
 }
 function getTopLeft (n) {
     return (SIZE + 1) * n + 1;
@@ -148,10 +151,11 @@ function randomColor () {
     return ~~(Math.random() * 7);
 }
 function next3Ball () {
-    nextList = [];
+    // nextList = [];
+    var isSave = nextList.length > 0;
     for (var i = 0; i < 3; i++) {
-        var cl = randomColor();
-        nextList.push(cl);
+        var cl = isSave ? nextList[i] : randomColor();
+        isSave || nextList.push(cl);
         bgctx.beginPath();
         bgctx.fillStyle = '#' + kindList[cl];
         bgctx.arc(SIZE*5/2 + i * SIZE, WRAP_SIZE + SIZE/2, SIZE/3, 0, Math.PI*2);
@@ -187,6 +191,7 @@ function new3Ball () {
     }
     canplay = true;
     next3Ball();
+    saveGame();
 }
 function getID (col, row) {
     return row * 10 + col;
@@ -301,7 +306,7 @@ function selectBall (id, x, y) {
 // 用户输入
 function userPlay () {
     cvs.addEventListener('touchstart', function (e) {
-        if (!canplay) {
+        if (!canplay || gameover) {
             return false;
         }
         var x = ~~(e.touches[0].clientX / (SIZE+1)),
@@ -326,12 +331,41 @@ function renderBall () {
     }
     ani = requestAnimationFrame(renderBall);
 }
+function restoreGame () {
+    var _ballList = JSON.parse(localStorage.getItem('cl_ball'));
+    var _nextList = JSON.parse(localStorage.getItem('cl_next'));
+    _ballList && (ballList = _ballList);
+    _nextList && (nextList = _nextList);
+    score = (localStorage.getItem('cl_score') || 0) | 0;
+    document.getElementById('high').innerHTML = localStorage.getItem('cl_high');
+    return !_ballList;
+}
+function saveGame () {
+    localStorage.setItem('cl_ball', JSON.stringify(ballList));
+    localStorage.setItem('cl_next', JSON.stringify(nextList));
+    localStorage.setItem('cl_score', score);
+}
+function clearSave () {
+    localStorage.removeItem('cl_ball');
+    localStorage.removeItem('cl_next');
+}
+function updateHighScore () {
+    var high = localStorage.getItem('cl_high');
+    if (score > high) {
+        localStorage.setItem('cl_high', score);
+    }
+}
 // 初始化
 function init () {
     drawBack();
     userPlay();
-    next3Ball();
-    new3Ball();
+    if (restoreGame()) {
+        next3Ball();
+        new3Ball();
+    } else {
+        next3Ball();
+        canplay = true;
+    }
     drawScore();
     renderBall();
 }
