@@ -19,6 +19,8 @@ var currentBall = null, // 选中球的id
     currentBallX = true; // 选中球的动画状态是否正在缩小
 var canplay = false;
 var score = 0;
+var noClearToOver = false;
+var gameover = false;
 // 画背景
 function drawBack () {
     bgctx.fillStyle = '#bbb';
@@ -126,8 +128,13 @@ function checkClear (id, needNew) {
             setBlock(i, null);
         })
         clearList = [];
+        noClearToOver = false;
     } else if (needNew) {
         new3Ball();
+    } else if (noClearToOver) {
+        console.log('GameOver')
+        gameover = true;
+        return false;
     }
 }
 function drawScore () {
@@ -162,6 +169,9 @@ function newBall () {
         if (ballList[id].n == null) {
             emptyList.push(id);
         }
+    }
+    if (emptyList.length == 1) {
+        noClearToOver = true;
     }
     if (emptyList.length > 0) {
         var id = emptyList[~~(Math.random() * emptyList.length)];
