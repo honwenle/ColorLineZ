@@ -150,8 +150,8 @@ function getTopLeft (n) {
 function randomColor () {
     return ~~(Math.random() * 7);
 }
+// 生成 绘制下一组
 function next3Ball () {
-    // nextList = [];
     var isSave = nextList.length > 0;
     for (var i = 0; i < 3; i++) {
         var cl = isSave ? nextList[i] : randomColor();
@@ -167,6 +167,7 @@ function next3Ball () {
     bgctx.textBaseline = 'middle';
     bgctx.fillText('下一组：', 0, WRAP_SIZE + SIZE/2);
 }
+// 放置新球
 function newBall () {
     var emptyList = [];
     for (var id in ballList) {
@@ -331,6 +332,7 @@ function renderBall () {
     }
     ani = requestAnimationFrame(renderBall);
 }
+// 恢复棋盘
 function restoreGame () {
     var _ballList = JSON.parse(localStorage.getItem('cl_ball'));
     var _nextList = JSON.parse(localStorage.getItem('cl_next'));
@@ -340,16 +342,19 @@ function restoreGame () {
     document.getElementById('high').innerHTML = localStorage.getItem('cl_high');
     return !_ballList;
 }
+// 保存棋盘
 function saveGame () {
     localStorage.setItem('cl_ball', JSON.stringify(ballList));
     localStorage.setItem('cl_next', JSON.stringify(nextList));
     localStorage.setItem('cl_score', score);
 }
+// 清除保存
 function clearSave () {
     localStorage.removeItem('cl_ball');
     localStorage.removeItem('cl_next');
     localStorage.removeItem('cl_score');
 }
+// 更新最高分
 function updateHighScore () {
     var high = localStorage.getItem('cl_high');
     if (score > high) {
