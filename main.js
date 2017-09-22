@@ -132,10 +132,13 @@ function checkClear (id, needNew) {
     } else if (needNew) {
         new3Ball();
     } else if (noClearToOver) {
-        console.log('获得'+score+'分')
         gameover = true;
         updateHighScore();
-        // location.reload();
+        var goon = confirm('获得'+score+'分,是否重玩?')
+        if (goon) {
+            clearSave();
+            location.reload();
+        }
         return false;
     }
 }
