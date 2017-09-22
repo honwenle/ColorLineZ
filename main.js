@@ -12,7 +12,7 @@ var bgctx = bgcvs.getContext('2d');
 bgcvs.width = WRAP_SIZE;
 bgcvs.height = WRAP_SIZE + SIZE;
 
-var kindList = ['f00','0ff','0f0','f0f','00f','ff0','000']; // 颜色列表
+var kindList = ['FF8080','8080FF','FFFF80','0080FF','80FFFF','80FF80','FF8000']; // 颜色列表
 var ballList = {}; // 色球列表
 var nextList = []; // 下一批颜色列表
 var currentBall = null, // 选中球的id
