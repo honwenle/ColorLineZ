@@ -134,11 +134,12 @@ function checkClear (id, needNew) {
     } else if (noClearToOver) {
         gameover = true;
         updateHighScore();
-        var goon = confirm('获得'+score+'分,是否重玩?')
-        if (goon) {
-            clearSave();
-            location.reload();
-        }
+        alert('获得'+score+'分')
+        // clearSave();
+        // var goon = confirm('获得'+score+'分,是否重玩?')
+        // if (goon) {
+        //     location.reload();
+        // }
         return false;
     }
 }
